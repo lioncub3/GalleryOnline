@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using GalleryOnline.Models;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
+using System.IO;
 
 namespace GalleryOnline.Controllers
 {
@@ -29,16 +30,16 @@ namespace GalleryOnline.Controllers
 
             if (photo.File != null)
             {
-                string type = Path.GetExtension(book.Photo.FileName);
+                string type = Path.GetExtension(photo.File.FileName);
                 string name = $"{DateTime.Now.ToString("ssmmhhddMMyyyy")}{type}";
                 string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/photos", name);
 
                 using (var fileStream = new FileStream(path, FileMode.Create))
                 {
-                    await book.Photo.CopyToAsync(fileStream);
+                    await photo.File.CopyToAsync(fileStream);
                 }
 
-                book.PhotoUrl = "/photos/" + name;
+                photo.Url = "https://lioncub3storage.blob.core.windows.net/images/" + name;
 
                 CloudBlockBlob file = container.GetBlockBlobReference(name);
                 await file.UploadFromFileAsync(path);
